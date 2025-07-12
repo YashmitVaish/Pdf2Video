@@ -14,9 +14,6 @@ def render_scene(scene, audio_dir="output_audio", video_dir="video_output"):
     audio_path = os.path.join(audio_dir, audio_filename)
     output_video_path = os.path.join(video_dir, f"scene_{order:03d}.mp4")
 
-    if not os.path.isfile(audio_path):
-        raise FileNotFoundError(f" Audio file not found: {audio_path}")
-
     audio = AudioFileClip(audio_path)
     duration = audio.duration
 
