@@ -2,3 +2,4 @@
 *.json
 *.wav
 *.mp4
+models/*
