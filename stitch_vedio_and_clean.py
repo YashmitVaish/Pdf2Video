@@ -1,7 +1,7 @@
 from moviepy import VideoFileClip, concatenate_videoclips
 import os
 
-def stich_and_clean(videos_path:str,output_file = "final_vedio.mp4"):
+def stich_and_clean(videos_path:str,audio_path:str,output_file = "final_vedio.mp4"):
     contents = os.listdir(videos_path)
     clips = []
 
@@ -22,9 +22,15 @@ def stich_and_clean(videos_path:str,output_file = "final_vedio.mp4"):
     for content in contents:
         full_path = os.path.join(videos_path,content)
         os.remove(full_path)
-
     os.rmdir(videos_path)
 
-stich_and_clean("video_output")
+    contents = os.listdir(audio_path)
+    for content in contents:
+        full_path = os.path.join(audio_path,content)
+        os.remove(full_path)
+    os.rmdir(audio_path)
+
+
+stich_and_clean("output_video","output_audio")
 
 

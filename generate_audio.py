@@ -7,7 +7,6 @@ with open("scenes.json", "r", encoding="utf-8") as f:
     scenes = json.load(f)
 
 def generate_all_audio(folder_name, scenes):
-    # Create output folder
     os.makedirs(folder_name, exist_ok=True)
 
     for scene in scenes:

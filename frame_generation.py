@@ -14,10 +14,6 @@ def extract_json_block(text):
 
 
 
-with open("cleaned_chunks.json", "r", encoding= "utf-8") as f:
-    data = json.load(f)
-    f.close()
-
 
 prompt = PromptTemplate.from_template(
     """
@@ -32,7 +28,7 @@ prompt = PromptTemplate.from_template(
         - Break down complex terms into simpler language.
         - The visual text should be short and readable, like a heading, key phrase, or equation.
         - Do NOT include explanations in the visual text.
-        - Output only valid JSON.
+        - Output only valid JSON
         - You can summarize/fix the text if its repititive in nature
         - You are allowed to fix mathamatical expressions
         - Return only the response in JSON with no LLM responses like (sure here is... among others)
@@ -43,7 +39,7 @@ prompt = PromptTemplate.from_template(
         {{
         "scene_title": "Ohm's Law",
         "narration_script": "Ohm's Law explains the relationship between voltage, current, and resistance. When the resistance stays constant, increasing the voltage will increase the current flowing through a circuit.",
-        "visual_text": "Ohm's Law: V = I × R"
+        "screen_text": "Ohm's lay explains the relation between potential difference (v), Current (I) and resistance (R) as V = IR"
         }}
 
         Input:
@@ -72,8 +68,14 @@ def generate_scenes(chunks):
         i = i+1
     return scenes
         
-scenes = (generate_scenes(data))
+if __name__ = "__main__":
+    
+    with open("cleaned_chunks.json", "r", encoding= "utf-8") as f:
+        data = json.load(f)
+        f.close()
 
-with open("scenes.json","w",encoding="utf-8") as f:
-    json.dump(scenes,f)
-    f.close()
+    scenes = (generate_scenes(data))
+
+    with open("scenes.json","w",encoding="utf-8") as f:
+        json.dump(scenes,f)
+        f.close()
