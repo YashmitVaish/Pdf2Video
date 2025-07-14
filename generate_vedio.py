@@ -3,8 +3,11 @@ from moviepy.video.tools.drawing import color_gradient
 import textwrap
 import json 
 import os 
+import concurrent.futures
 
-def render_scene(scene,  background_path = "blackboard.png",audio_dir ="output_audio",video_dir = "output_video", resolution = (1280,720)):
+def render_scene(scene,audio_dir ,video_dir , resolution = (1280,720)):
+    background_path = "blackboard.png"
+    
     os.makedirs(video_dir,exist_ok=True)
 
     order = scene["order"]
@@ -53,16 +56,12 @@ def render_scene(scene,  background_path = "blackboard.png",audio_dir ="output_a
     
 
 
-def render_all_vedio(scenes,background_path = "blackboard.png",audio_dir ="output_audio",video_dir = "output_video"):
-    for scene in scenes:
-        render_scene(scene,background_path = "blackboard.png",audio_dir ="output_audio",video_dir = "output_video")
-
-
-with open("scenes.json","r", encoding="utf-8") as f:
-    data = json.load(f)
-    f.close()
-
-render_all_vedio(data)
+def render_all_vedio(scenes,audio_dir ,video_dir):
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+        futures = []
+        for scene in scenes:
+            futures.append(executor.submit(render_scene,scene,audio_dir,video_dir))
+        concurrent.futures.wait(futures)
 
 
 

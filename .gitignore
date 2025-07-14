@@ -4,3 +4,4 @@
 *.mp4
 models/*
 *.txt
+__pycache__/*

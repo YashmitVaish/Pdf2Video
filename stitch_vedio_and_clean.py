@@ -31,6 +31,5 @@ def stich_and_clean(videos_path:str,audio_path:str,output_file = "final_vedio.mp
     os.rmdir(audio_path)
 
 
-stich_and_clean("output_video","output_audio")
 
 

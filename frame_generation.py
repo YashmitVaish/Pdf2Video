@@ -27,7 +27,7 @@ prompt = PromptTemplate.from_template(
         - Keep the narration friendly, conversational, and suitable for school or college students.
         - Break down complex terms into simpler language.
         - The visual text should be short and readable, like a heading, key phrase, or equation.
-        - Do NOT include explanations in the visual text.
+        - The visual text should be no more than 20 words in length
         - Output only valid JSON
         - You can summarize/fix the text if its repititive in nature
         - You are allowed to fix mathamatical expressions
@@ -67,8 +67,9 @@ def generate_scenes(chunks):
         print(i)
         i = i+1
     return scenes
+
         
-if __name__ = "__main__":
+if __name__ == "__main__":
     
     with open("cleaned_chunks.json", "r", encoding= "utf-8") as f:
         data = json.load(f)

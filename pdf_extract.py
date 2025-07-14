@@ -128,12 +128,10 @@ def process_raw_chunks(raw_chunks):
 
         topics = split_topics(merged)
 
-        # Attach any tables from the page to the first topic
         tables = page.get("tables", [])
         if tables and topics:
             topics[0]["tables"] = tables
 
-        # Assign sequential order numbers
         for topic in topics:
             topic["page_number"] = page.get("page_number", -1)
             topic["order"] = order
@@ -141,6 +139,8 @@ def process_raw_chunks(raw_chunks):
             order += 1
 
         all_chunks.extend(topics)
+        
+    return all_chunks
   
 
 def process_pdf(pdf_path):
