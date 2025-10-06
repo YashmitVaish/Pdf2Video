@@ -1,9 +1,7 @@
-*.pdf
 *.json
 *.wav
 *.mp4
-models/*
+models
 *.txt
 __pycache__/*
 .env
-util/*
