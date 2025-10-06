@@ -5,3 +5,4 @@
 models/*
 *.txt
 __pycache__/*
+.env
