@@ -154,7 +154,7 @@ def process_pdf(pdf_path):
 
 
 if __name__ == "__main__":
-    print(process_pdf(""))
+    print(process_pdf("util/testpdf.pdf"))
 
 
 
