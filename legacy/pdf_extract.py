@@ -1,8 +1,6 @@
 import pdfplumber
 import spacy
 import re
-from langchain.prompts import PromptTemplate
-import ollama
 
 nlp = spacy.load("en_core_web_sm")
 
@@ -69,7 +67,6 @@ def is_heading(line):
     if line.strip().isupper() or line.strip().istitle():
         return True
 
-    # Heuristic 2: Mostly nouns and proper nouns
     noun_ratio = sum(1 for token in doc if token.pos_ in ["NOUN", "PROPN"]) / (len(doc) or 1)
     verb_count = sum(1 for token in doc if token.pos_ == "VERB")
 
@@ -82,7 +79,6 @@ def split_topics(text):
     lines = text.split("\n")
     chunks = []
     current_title = " "
-    order = 1
     buffer = ""
 
     for line in lines:
@@ -93,13 +89,10 @@ def split_topics(text):
         if is_heading(line):
             if buffer:
                 chunks.append({
-                    "chunk_id": f"slide_{order:03d}",
                     "section_title": current_title,
-                    "content": buffer.strip(),
+                    "text": buffer.strip(),
                     "tables": [],
-                    "order": order
                 })
-                order += 1
                 buffer = ""
 
             current_title = line
@@ -108,11 +101,9 @@ def split_topics(text):
 
     if buffer:
         chunks.append({
-            "chunk_id": f"slide_{order:03d}",
             "section_title": current_title,
-            "content": buffer.strip(),
+            "text": buffer.strip(),
             "tables": [],
-            "order": order
         })
 
     return chunks
@@ -133,10 +124,7 @@ def process_raw_chunks(raw_chunks):
             topics[0]["tables"] = tables
 
         for topic in topics:
-            topic["page_number"] = page.get("page_number", -1)
-            topic["order"] = order
-            topic["chunk_id"] = f"slide_{order:03d}"
-            order += 1
+            topic["page_number"] = f"{(page.get('page_number', -1)):03d}"
 
         all_chunks.extend(topics)
         
@@ -154,7 +142,12 @@ def process_pdf(pdf_path):
 
 
 if __name__ == "__main__":
-    print(process_pdf("util/testpdf.pdf"))
+    text = (process_pdf("util/testpdf.pdf"))
+    import json
+
+    for aa in text:
+        print(json.dumps(aa,indent=2))
+        break
 
 
 

@@ -1,11 +1,12 @@
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Optional , Dict , Any
 
 @dataclass
 class Page:
-    number: int
-    image_path: str
+    page_number: int
+    section_title: str
     text: str
+    tables: List[Dict[str, Any]]
 
 @dataclass
 class Narration:
