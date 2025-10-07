@@ -26,7 +26,7 @@ def render_scene(scene,audio_dir ,video_dir , resolution = (1280,720)):
             text=title,
             font_size=60,
             color='white',
-            font="dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf",
+            font="util/dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf",
             method="caption",
             size=(resolution[0] - 100, 200)
         ).with_position(("center", 40)).with_duration(duration)
@@ -36,7 +36,7 @@ def render_scene(scene,audio_dir ,video_dir , resolution = (1280,720)):
             text=wrapped,
             font_size=40,
             color='white',
-            font="dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf",
+            font="util/dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf",
             method="caption",
             size=(resolution[0]-100 ,600)
         ).with_position(("center", "center")).with_duration(duration)

@@ -16,5 +16,5 @@ def pdftovideo(path_to_pdf):
     print("done and dusted")
     
 if __name__ == "__main__":
-    pdftovideo("testpdf.pdf")
+    pdftovideo("util/testpdf.pdf")
 

@@ -14,7 +14,7 @@ def generate_audio(folder_name, scene):
 
     command = [
             "piper",
-            "-m", "models/en_US-lessac-medium.onnx",
+            "-m", "util/models/en_US-lessac-medium.onnx",
             "-f", output_file, content
         ]
 
