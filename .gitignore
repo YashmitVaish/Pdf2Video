@@ -9,3 +9,4 @@ video
 test_audio_output
 media
 *.pyc
+test.py
