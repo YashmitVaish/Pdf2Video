@@ -1,0 +1,63 @@
+extract_pdf:
+  agent: pdf_agent
+  inputs:
+    pdf_path: "{{input.pdf_path}}"
+  outputs:
+    chunks: "pdf_chunks"
+
+generate_scenes:
+  agent: scene_agent
+  inputs:
+    text_chunks: "pdf_chunks"
+    user_profile: "{{input.user_profile}}"
+    instructions: "{{input.instructions}}"
+  outputs:
+    scenes: "scene_list"
+  depends_on:
+    - extract_pdf
+
+render_all_scenes:
+  agent: director
+  parallel: true
+  loop_over: "scene_list"
+  run_tasks:
+    - render_audio
+    - render_video
+    - merge_scene
+  depends_on:
+    - generate_scenes
+
+evaluate_scenes:
+  agent: evaluator_agent
+  parallel: true
+  loop_over: "scene_list"
+  inputs:
+    scene: "{{item}}"
+  outputs:
+    scene_feedback: "scene.feedback"
+  depends_on:
+    - render_all_scenes
+
+regenerate_failed_scenes:
+  agent: director
+  loop_over: "scene_list"
+  condition: "scene.score < 0.8"
+  run_tasks:
+    - scene_agent
+    - render_audio
+    - render_video
+    - merge_scene
+    - evaluator_agent
+  depends_on:
+    - evaluate_scenes
+
+final_merge:
+  agent: final_merger_agent
+  inputs:
+    valid_scenes: "{{scene_list | filter('score >= 0.8')}}"
+  outputs:
+    final_video_path: "final_video.mp4"
+  action: "concatenate_all_scene.merged_path"
+  depends_on:
+    - evaluate_scenes
+    - regenerate_failed_scenes
