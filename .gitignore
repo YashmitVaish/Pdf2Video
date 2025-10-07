@@ -5,3 +5,7 @@ models
 *.txt
 __pycache__
 .env
+video
+test_audio_output
+media
+*.pyc

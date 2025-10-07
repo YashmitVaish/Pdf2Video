@@ -46,7 +46,7 @@ prompt = PromptTemplate.from_template(
             {{
             "type": "textbox" | "equation" | "graph",
             "text": "string (for textbox or equation)",
-            "title": "string (optional, for graph)",
+            "title": "string (none, for graph)",
             "x_label": "string (only for graph)",
             "y_label": "string (only for graph)",
             "points": [[number, number], ...] (only for graph),
@@ -94,7 +94,7 @@ prompt = PromptTemplate.from_template(
         - `"style"` — object defining:
             - `"font_size"` (integer)
             - `"box"` (boolean)
-            - `"box_color"` (string; allowed: LIGHTBLUE, BLUE, YELLOW, GREEN, RED)
+            - `"box_color"` (string; allowed: BLUE, YELLOW, GREEN, RED)
         - Each element must be syntactically complete and visually meaningful.
 
 
@@ -106,6 +106,9 @@ prompt = PromptTemplate.from_template(
         - Fix or standardize typographical inconsistencies.
         - Remove redundancy in narration.
         - Ensure consistent tone and readability.
+        - Any given scene can have multiple elements
+        - If a scene has a graph it wont have any other elements
+        - if you put multiple textboxes in a page keep the layout accordinly 
 
         ---
 
@@ -142,7 +145,7 @@ prompt = PromptTemplate.from_template(
                 "box": true,
                 "box_color": "LIGHTBLUE"
             }}
-            }}
+            }},
         ],
         }}
 
@@ -203,3 +206,27 @@ class SceneGeneratorTool(BaseTool):
         return scenes
 
 
+# test_chunks = [
+#     {
+#         "section_title": "Ohm’s Law Basics",
+#         "content": "Ohm’s Law states that the current through a conductor between two points is directly proportional to the voltage across the two points. It is represented as V = IR.",
+#         "tables": ""
+#     },
+#     {
+#         "section_title": "Factors Affecting Resistance",
+#         "content": "Resistance depends on material, length, cross-sectional area, and temperature. Materials with higher resistivity produce higher resistance.",
+#         "tables": ""
+#     },
+#     {
+#         "section_title": "Temperature Coefficient",
+#         "content": "When temperature increases, the resistance of conductors typically increases. This behavior is described by the temperature coefficient of resistance.",
+#         "tables": "Temperature (°C), Resistance (Ω)\n0, 100\n50, 120\n100, 140"
+#     }
+# ]
+
+
+# tool = SceneGeneratorTool()
+# scenes = tool._run(chunks=test_chunks)
+
+# with open("test_json_scene.json","w",encoding="utf-8") as f:
+#     json.dump(scenes,f,indent = 2, ensure_ascii=False)

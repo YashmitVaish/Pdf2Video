@@ -61,3 +61,13 @@ final_merge:
   depends_on:
     - evaluate_scenes
     - regenerate_failed_scenes
+
+render_audio:
+  agent: audio_agent
+  inputs:
+    scenes: "scene_list"
+    folder_name: "outputs/audio"
+  outputs:
+    scenes: "scene_list"
+  depends_on:
+    - generate_scenes
