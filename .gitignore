@@ -3,5 +3,5 @@
 *.mp4
 models
 *.txt
-__pycache__/*
+__pycache__
 .env
