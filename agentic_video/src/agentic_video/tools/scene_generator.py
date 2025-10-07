@@ -205,28 +205,3 @@ class SceneGeneratorTool(BaseTool):
 
         return scenes
 
-
-# test_chunks = [
-#     {
-#         "section_title": "Ohm’s Law Basics",
-#         "content": "Ohm’s Law states that the current through a conductor between two points is directly proportional to the voltage across the two points. It is represented as V = IR.",
-#         "tables": ""
-#     },
-#     {
-#         "section_title": "Factors Affecting Resistance",
-#         "content": "Resistance depends on material, length, cross-sectional area, and temperature. Materials with higher resistivity produce higher resistance.",
-#         "tables": ""
-#     },
-#     {
-#         "section_title": "Temperature Coefficient",
-#         "content": "When temperature increases, the resistance of conductors typically increases. This behavior is described by the temperature coefficient of resistance.",
-#         "tables": "Temperature (°C), Resistance (Ω)\n0, 100\n50, 120\n100, 140"
-#     }
-# ]
-
-
-# tool = SceneGeneratorTool()
-# scenes = tool._run(chunks=test_chunks)
-
-# with open("test_json_scene.json","w",encoding="utf-8") as f:
-#     json.dump(scenes,f,indent = 2, ensure_ascii=False)

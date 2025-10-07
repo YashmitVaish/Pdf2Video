@@ -65,24 +65,3 @@ class AudioRenderTool(BaseTool):
 
         return scenes
 
-import json
-
-with open("test_json_scene.json","r",encoding="utf-8") as f:
-    sample_scenes = json.load(f)
-    f.close()
-
-# Folder to store audio files
-output_folder = "test_audio_output"
-
-# Create tool instance
-audio_tool = AudioRenderTool()
-
-# Prepare input schema
-input_data = AudioRenderInput(scenes=sample_scenes, folder_name=output_folder)
-
-# Run tool
-result_scenes = audio_tool._run(scenes=input_data.scenes, folder_name=input_data.folder_name)
-
-# Print results
-for scene in result_scenes:
-    print(f"Scene {scene['order']} audio_path: {scene.get('audio_path')}")

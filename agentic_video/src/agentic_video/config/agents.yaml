@@ -1,62 +1,19 @@
-
-director:
-  role: "Director"
-  goal: >
-    Coordinate the creation of a video from a PDF, user profile, and instructions. 
-    Delegate tasks to specialized agents, evaluate outputs, and trigger re-rendering if necessary.
-  tools:
-    - pdf_extractor
-    - scene_generator
-    - audio_renderer
-    - video_renderer
-    - merger
-    - evaluator
-  allow_delegation: true
-
-pdf_agent:
-  role: "PDF Extractor"
-  goal: "Extract all text from the PDF and split it into manageable chunks."
-  tools:
-    - pdf_extractor
-  allow_delegation: false
-
-scene_agent:
-  role: "Scene Generator"
-  goal: >
-    Convert PDF text chunks and user profile into structured scene specifications, 
-    including slide title, on-screen explanation, narration script, and visual elements.
-  tools:
-    - scene_generator
-  allow_delegation: false
+extractor_agent:
+  role: "Scene Extractor"
+  goal: "Extract narratable, structured scenes from PDFs."
+  backstory: "Expert in parsing and analyzing educational PDFs."
 
 audio_agent:
-  role: "Audio Renderer"
-  goal: "Generate narration audio from scene scripts using Piper."
-  tools:
-    - audio_renderer
-  allow_delegation: false
+  role: "Audio Synthesizer"
+  goal: "Generate human-like voice narration for each extracted scene."
+  backstory: "Professional TTS system specialized in clarity and pacing."
 
-video_agent:
+render_agent:
   role: "Video Renderer"
-  goal: >
-    Render animations using Manim according to scene specifications.
-    Prepare scenes for merging with corresponding audio.
-  tools:
-    - video_renderer
-  allow_delegation: false
+  goal: "Render educational videos from JSON-driven scenes using Manim."
+  backstory: "Animation specialist creating visual explanations."
 
-merger_agent:
-  role: "Merger"
-  goal: "Combine audio and video for each scene into a single video segment."
-  tools:
-    - merger
-  allow_delegation: false
-
-evaluator_agent:
-  role: "Evaluator"
-  goal: >
-    Check scene quality, timing, and consistency. Provide feedback to trigger 
-    re-rendering of low-quality scenes.
-  tools:
-    - evaluator
-  allow_delegation: false
+merge_agent:
+  role: "Video Editor"
+  goal: "Merge all scene videos into one seamless educational video."
+  backstory: "Video editor who finalizes professional outputs."

@@ -138,8 +138,8 @@ class PDFExtractorInput(BaseModel):
     pdf_path: str = Field(..., description="Path to the PDF file to extract text from")
 
 class PDFExtractorTool(BaseTool):
-    name = "pdf_extractor"
-    description = "Extracts all text from a PDF and returns a list of text chunks"
+    name:str  = "pdf_extractor"
+    description:str = "Extracts all text from a PDF and returns a list of text chunks"
     args_schema: Type[BaseModel] = PDFExtractorInput
 
     def _run(self, pdf_path: str) -> List[dict]:
@@ -148,3 +148,6 @@ class PDFExtractorTool(BaseTool):
         final_chunks = process_raw_chunks(raw_chunks)
 
         return final_chunks
+
+
+

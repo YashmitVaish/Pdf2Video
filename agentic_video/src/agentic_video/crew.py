@@ -1,64 +1,121 @@
+from typing import List
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
-from typing import List
-# If you want to run a snippet of code before or after the crew starts,
-# you can use the @before_kickoff and @after_kickoff decorators
-# https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
+
+from tools.pdf_extractor import PDFExtractorTool
+from tools.scene_generator import SceneGeneratorTool
+from tools.audio_render import AudioRenderTool
+from tools.video_render import RenderVideoTool
+from tools.merger import MergeAllTool
+
 
 @CrewBase
-class AgenticVideo():
-    """AgenticVideo crew"""
+class AgenticVideo:
 
     agents: List[BaseAgent]
     tasks: List[Task]
 
-    # Learn more about YAML configuration files here:
-    # Agents: https://docs.crewai.com/concepts/agents#yaml-configuration-recommended
-    # Tasks: https://docs.crewai.com/concepts/tasks#yaml-configuration-recommended
-    
-    # If you would like to add tools to your agents, you can learn more about it here:
-    # https://docs.crewai.com/concepts/agents#agent-tools
+    # ---- Agents ----
     @agent
-    def researcher(self) -> Agent:
+    def extractor_agent(self) -> Agent:
         return Agent(
-            config=self.agents_config['researcher'], # type: ignore[index]
-            verbose=True
-        )
-
-    @agent
-    def reporting_analyst(self) -> Agent:
-        return Agent(
-            config=self.agents_config['reporting_analyst'], # type: ignore[index]
-            verbose=True
-        )
-
-    # To learn more about structured task outputs,
-    # task dependencies, and task callbacks, check out the documentation:
-    # https://docs.crewai.com/concepts/tasks#overview-of-a-task
-    @task
-    def research_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['research_task'], # type: ignore[index]
-        )
-
-    @task
-    def reporting_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['reporting_task'], # type: ignore[index]
-            output_file='report.md'
-        )
-
-    @crew
-    def crew(self) -> Crew:
-        """Creates the AgenticVideo crew"""
-        # To learn how to add knowledge sources to your crew, check out the documentation:
-        # https://docs.crewai.com/concepts/knowledge#what-is-knowledge
-
-        return Crew(
-            agents=self.agents, # Automatically created by the @agent decorator
-            tasks=self.tasks, # Automatically created by the @task decorator
-            process=Process.sequential,
+            role="PDF Extractor",
+            goal="Extract structured scene chunks from a PDF.",
+            backstory="Parses PDFs and outputs ordered text chunks and metadata.",
+            tools=[PDFExtractorTool()],
             verbose=True,
-            # process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
         )
+
+    @agent
+    def scene_agent(self) -> Agent:
+        return Agent(
+            role="Scene Generator",
+            goal="Convert text chunks into structured scene JSONs.",
+            backstory="Produces slide_title, narration_script, elements and order for each scene.",
+            tools=[SceneGeneratorTool()],
+            verbose=True,
+        )
+
+    @agent
+    def audio_agent(self) -> Agent:
+        return Agent(
+            role="Audio Renderer",
+            goal="Generate narration audio files from scene narration scripts.",
+            backstory="Uses Piper (or configured TTS) to produce .wav files per scene.",
+            tools=[AudioRenderTool()],
+            verbose=True,
+        )
+
+    @agent
+    def render_agent(self) -> Agent:
+        return Agent(
+            role="Video Renderer",
+            goal="Render scenes to MP4 using Manim and sync audio.",
+            backstory="Produces per-scene MP4 files based on scene JSON and audio.",
+            tools=[RenderVideoTool()],
+            verbose=True,
+        )
+
+    @agent
+    def merge_agent(self) -> Agent:
+        return Agent(
+            role="Video Merger",
+            goal="Concatenate per-scene MP4s into a single final video.",
+            backstory="Final assembly and optional cleanup of intermediate files.",
+            tools=[MergeAllTool()],
+            verbose=True,
+        )
+
+    # ---- Tasks ----
+    @task
+    def extract_task(self) -> Task:
+        return Task(
+            description="Extract scenes from PDF",
+            agent=self.extractor_agent(),          # <- Agent instance, not a string
+            expected_output="chunks",
+            output_file="intermediate/scenes.json",
+        )
+
+    @task
+    def generate_scenes_task(self) -> Task:
+        return Task(
+            description="Generate scene JSON from chunks",
+            agent=self.scene_agent(),
+            expected_output="a list of scenes",
+        )
+
+    @task
+    def audio_task(self) -> Task:
+        return Task(
+            description="Render audio for each scene",
+            agent=self.audio_agent(),
+            expected_output="populated dir",
+        )
+
+    @task
+    def render_task(self) -> Task:
+        return Task(
+            description="Render videos for each scene",
+            agent=self.render_agent(),
+            expected_output="video_output/",
+        )
+
+    @task
+    def merge_task(self) -> Task:
+        return Task(
+            description="Merge all scene videos",
+            agent=self.merge_agent(),
+            expected_output="final_video.mp4",
+        )
+
+
+if __name__ == "__main__":
+    # Example run. Replace paths in the task/tool implementations or pass inputs to kickoff.
+    crew = AgenticVideo().crew()  # type: ignore[attr-defined]
+    # Pass inputs the tools expect via kickoff inputs (adjust keys to your tools)
+    kickoff_inputs = {
+        "pdf_path": "testpdf-6-9.pdf"
+    }
+    result = crew.kickoff(inputs=kickoff_inputs)
+    print("Pipeline finished. Result:", result)
