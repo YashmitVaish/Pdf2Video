@@ -1,5 +1,5 @@
 extract_pdf:
-  agent: pdf_agent
+  agent: extractor_agent
   inputs:
     pdf_path: "{{input.pdf_path}}"
   outputs:
@@ -16,52 +16,6 @@ generate_scenes:
   depends_on:
     - extract_pdf
 
-render_all_scenes:
-  agent: director
-  parallel: true
-  loop_over: "scene_list"
-  run_tasks:
-    - render_audio
-    - render_video
-    - merge_scene
-  depends_on:
-    - generate_scenes
-
-evaluate_scenes:
-  agent: evaluator_agent
-  parallel: true
-  loop_over: "scene_list"
-  inputs:
-    scene: "{{item}}"
-  outputs:
-    scene_feedback: "scene.feedback"
-  depends_on:
-    - render_all_scenes
-
-regenerate_failed_scenes:
-  agent: director
-  loop_over: "scene_list"
-  condition: "scene.score < 0.8"
-  run_tasks:
-    - scene_agent
-    - render_audio
-    - render_video
-    - merge_scene
-    - evaluator_agent
-  depends_on:
-    - evaluate_scenes
-
-final_merge:
-  agent: final_merger_agent
-  inputs:
-    valid_scenes: "{{scene_list | filter('score >= 0.8')}}"
-  outputs:
-    final_video_path: "final_video.mp4"
-  action: "concatenate_all_scene.merged_path"
-  depends_on:
-    - evaluate_scenes
-    - regenerate_failed_scenes
-
 render_audio:
   agent: audio_agent
   inputs:
@@ -71,3 +25,23 @@ render_audio:
     scenes: "scene_list"
   depends_on:
     - generate_scenes
+
+render_videos:
+  agent: render_agent
+  parallel: true
+  loop_over: "scene_list"
+  inputs:
+    scene: "{{item}}"
+  outputs:
+    rendered_videos: "scene_videos"
+  depends_on:
+    - render_audio
+
+final_merge:
+  agent: merge_agent
+  inputs:
+    video_files: "scene_videos"
+  outputs:
+    final_video_path: "final_video.mp4"
+  depends_on:
+    - render_videos

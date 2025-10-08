@@ -1,19 +1,24 @@
 extractor_agent:
-  role: "Scene Extractor"
-  goal: "Extract narratable, structured scenes from PDFs."
-  backstory: "Expert in parsing and analyzing educational PDFs."
+  role: "PDF Extractor"
+  goal: "Extract structured scene chunks from a PDF."
+  backstory: "Parses PDFs and outputs ordered text chunks and metadata."
+
+scene_agent:
+  role: "Scene Generator"
+  goal: "Convert text chunks into structured scene JSONs."
+  backstory: "Produces slide_title, narration_script, elements, and order for each scene."
 
 audio_agent:
-  role: "Audio Synthesizer"
-  goal: "Generate human-like voice narration for each extracted scene."
-  backstory: "Professional TTS system specialized in clarity and pacing."
+  role: "Audio Renderer"
+  goal: "Generate narration audio files from scene narration scripts."
+  backstory: "Uses TTS to produce .wav files per scene."
 
 render_agent:
   role: "Video Renderer"
-  goal: "Render educational videos from JSON-driven scenes using Manim."
-  backstory: "Animation specialist creating visual explanations."
+  goal: "Render scenes to MP4 using Manim and sync audio."
+  backstory: "Produces per-scene MP4 files based on scene JSON and audio."
 
 merge_agent:
-  role: "Video Editor"
-  goal: "Merge all scene videos into one seamless educational video."
-  backstory: "Video editor who finalizes professional outputs."
+  role: "Video Merger"
+  goal: "Concatenate per-scene MP4s into a single final video."
+  backstory: "Handles final assembly and optional cleanup of intermediate files."

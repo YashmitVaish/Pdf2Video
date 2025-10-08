@@ -9,14 +9,80 @@ from tools.audio_render import AudioRenderTool
 from tools.video_render import RenderVideoTool
 from tools.merger import MergeAllTool
 
+import time
+import threading
+from litellm import completion
+
+class RateLimitedLLM:
+    def __init__(self, model: str, tpm_limit: int = 6000, buffer: int = 500, refill_rate: int = 60):
+        """
+        model: model name e.g. 'groq/llama-3.1-8b-instant'
+        tpm_limit: token per minute cap (from provider)
+        buffer: safety margin before hitting the limit
+        refill_rate: seconds to reset (usually 60)
+        """
+        self.model = model
+        self.tpm_limit = tpm_limit - buffer
+        self.refill_rate = refill_rate
+        self.tokens_used = 0
+        self.lock = threading.Lock()
+        self.last_reset = time.time()
+
+    def _refill(self):
+        if time.time() - self.last_reset > self.refill_rate:
+            self.tokens_used = 0
+            self.last_reset = time.time()
+
+    def _wait_if_needed(self, tokens):
+        with self.lock:
+            self._refill()
+            if self.tokens_used + tokens > self.tpm_limit:
+                wait_time = self.refill_rate - (time.time() - self.last_reset)
+                print(f"Rate limit near! Waiting {wait_time:.2f}s...")
+                time.sleep(max(0, wait_time))
+                self._refill()
+            self.tokens_used += tokens
+
+    def __call__(self, messages, **kwargs):
+        # estimate tokens (roughly)
+        tokens = sum(len(m["content"].split()) for m in messages) * 1.3
+        self._wait_if_needed(int(tokens))
+        return completion(model=self.model, messages=messages, **kwargs)
+
+rate_limited_llm = RateLimitedLLM("groq/llama-3.1-8b-instant")
+
 
 @CrewBase
 class AgenticVideo:
+    @crew
+    def crew(self) -> Crew:
+        return Crew(
+            agents=[
+                self.extractor_agent(),
+                self.scene_agent(),
+                self.audio_agent(),
+                self.render_agent(),
+                self.merge_agent(),
+            ],
+            tasks=[
+                self.extract_task(),
+                self.generate_scenes_task(),
+                self.audio_task(),
+                self.render_task(),
+                self.merge_task(),
+            ],
+            process=Process.sequential,
+            verbose=True,
+            chat_llm= rate_limited_llm,
+            planning_llm=rate_limited_llm,
+            manager_llm=rate_limited_llm,
+            function_calling_llm= rate_limited_llm,
+    )
+
 
     agents: List[BaseAgent]
     tasks: List[Task]
 
-    # ---- Agents ----
     @agent
     def extractor_agent(self) -> Agent:
         return Agent(
@@ -67,15 +133,16 @@ class AgenticVideo:
             verbose=True,
         )
 
-    # ---- Tasks ----
     @task
     def extract_task(self) -> Task:
         return Task(
-            description="Extract scenes from PDF",
-            agent=self.extractor_agent(),          # <- Agent instance, not a string
+            description="Extract scenes from a PDF file.",
+            agent=self.extractor_agent(),
             expected_output="chunks",
             output_file="intermediate/scenes.json",
+            inputs={"pdf_path": "{{pdf_path}}"}
         )
+
 
     @task
     def generate_scenes_task(self) -> Task:
@@ -98,7 +165,7 @@ class AgenticVideo:
         return Task(
             description="Render videos for each scene",
             agent=self.render_agent(),
-            expected_output="video_output/",
+            expected_output="populated dir",
         )
 
     @task
@@ -111,11 +178,5 @@ class AgenticVideo:
 
 
 if __name__ == "__main__":
-    # Example run. Replace paths in the task/tool implementations or pass inputs to kickoff.
-    crew = AgenticVideo().crew()  # type: ignore[attr-defined]
-    # Pass inputs the tools expect via kickoff inputs (adjust keys to your tools)
-    kickoff_inputs = {
-        "pdf_path": "testpdf-6-9.pdf"
-    }
-    result = crew.kickoff(inputs=kickoff_inputs)
-    print("Pipeline finished. Result:", result)
+    AgenticVideo().crew().kickoff(inputs={"pdf_path": "testpdf-6-9.pdf"})
+    print("Pipeline finished. Result:")

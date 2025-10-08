@@ -17,13 +17,8 @@ def run():
     """
     Run the crew.
     """
-    inputs = {
-        'topic': 'AI LLMs',
-        'current_year': str(datetime.now().year)
-    }
-    
     try:
-        AgenticVideo().crew().kickoff(inputs=inputs)
+        AgenticVideo().crew().kickoff(inputs={"pdf_path": "testpdf-6-9.pdf"})
     except Exception as e:
         raise Exception(f"An error occurred while running the crew: {e}")
 

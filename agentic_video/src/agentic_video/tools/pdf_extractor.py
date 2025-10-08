@@ -149,5 +149,3 @@ class PDFExtractorTool(BaseTool):
 
         return final_chunks
 
-
-
