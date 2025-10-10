@@ -63,5 +63,3 @@ class AudioRenderTool(BaseTool):
                     print(f"[Scene {order}] Thread error: {e}")
                     scene["audio_path"] = None
 
-        return scenes
-
