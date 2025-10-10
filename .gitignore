@@ -1,6 +1,4 @@
 *.json
-*.wav
-*.mp4
 models
 *.txt
 __pycache__
@@ -10,3 +8,4 @@ test_audio_output
 media
 *.pyc
 test.py
+ass6.cpp
